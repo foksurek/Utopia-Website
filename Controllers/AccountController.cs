@@ -53,7 +53,7 @@ public class AccountController : Controller
     public IActionResult ChangePassword()
     {
         return Ok();
-    }git
+    }
 
 
     [HttpPost]
