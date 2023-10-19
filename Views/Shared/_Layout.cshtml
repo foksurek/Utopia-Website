@@ -1,0 +1,101 @@
+﻿@model Utopia.ViewModels.LoginViewModel
+@{
+    var configuration = (IConfiguration)Context.RequestServices.GetService(typeof(IConfiguration))!;
+    var urls = configuration!.GetSection("Urls").Get<Urls>();
+    var rnd = new Random();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"> 
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <link rel="stylesheet" href="~/css/style.css" asp-add-version="true"/>
+    <link rel="stylesheet" href="~/css/mobile.css" asp-add-version="true"/>
+    <link rel="stylesheet" href="~/css/animations.css" asp-add-version="true"/>
+    <title>@ViewData["Title"]</title>
+</head>
+<body>
+<nav>
+    <ul class="nav-elements">
+        <li><a id="nav-logo" href="/">Utopia</a></li>
+        <li><a id="nav-home" href="/">Home</a></li>
+        <li><a id="nav-beatmaps" asp-action="Maps" asp-controller="Home">Beatmaps</a></li>
+        <li><a id="nav-rankings" asp-action="Rankings" asp-controller="Home">Rankings</a></li>
+    </ul>
+    <span class="search-bar">
+        <input type="text" id="searchTerm" name="searchTerm" placeholder="search username, userid">
+        <div class="search-results"></div>
+        @{
+            string userId = Context.Session.GetString("UserId")!;
+            if (string.IsNullOrEmpty(userId))
+            {
+                <a class="login-ul-element" href="#">Log In</a>
+                <div class="user-modal">
+                    <form asp-action="Login" asp-controller="Account">
+                        <h1>Log in to your account:</h1>
+                        <input asp-for="Username" id="login" placeholder="Login" type="text" required>
+                        <input asp-for="Password" id="password" placeholder="Password" type="password" required>
+                        <input class="btn" value="Log in" type="submit">
+                        <hr>
+                        <h2>or create a new account from within osu client: <a href="#">how to register an Utopia account</a></h2>
+                    </form>
+                </div>
+
+            }
+            else
+            {
+                <a href="#" class="avatar-link login-ul-element">
+                    <div class="profile-avatar" style="--bg: url('/getAvatar/@Context.Session.GetString("UserId")?random=@rnd.Next(1, 50000)');"></div>
+                    <div class="user-modal-logged user-modal">
+                        <ul>
+                            <a asp-action="UserProfile" asp-route-id="@Context.Session.GetString("UserId")" asp-controller="Home"><li>Profil</li></a>
+                            <a asp-action="Edit" asp-controller="Account"><li>Settings</li></a>
+                            <li>Idk</li>
+                            <li>meow</li>
+                        </ul>
+                    </div>
+                </a>
+            }
+        }
+    </span>
+    <button id="nav-mobile">nav</button>
+</nav>
+@RenderBody()
+
+<footer>
+    <div>
+        <div class="col">
+            <span>utopia</span><br>
+            &copy; Copyright Utopia | 2022-2023<br>
+            Code under MIT license. 
+        </div>
+        <div class="col">
+            Not affiliated with ppy Pty Ltd in any way.<br>
+            "osu!" is a trademark of ppy Pty Ltd. 
+        </div>
+    </div>
+    <div>
+        <div style="text-align: right;">
+            <span>socials</span>
+            <a href="#">discord</a>
+            <a href="https://github.com/foksurek/Utopia-Website">github</a>
+        </div>
+    </div>
+</footer>
+
+@await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/searchPlayer.js"></script>
+<script src="~/js/nav.js"></script>
+</body>
+</html>

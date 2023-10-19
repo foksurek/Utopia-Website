@@ -1,0 +1,156 @@
+﻿@using Newtonsoft.Json.Linq
+@using Microsoft.Extensions.Options
+@using Org.BouncyCastle.Utilities
+@{
+    var configuration = (IConfiguration)Context.RequestServices.GetService(typeof(IConfiguration))!;
+    var urls = configuration!.GetSection("Urls").Get<Urls>();
+    var players = @ViewBag.results;
+}
+@{
+    ViewData["title"] = "test";
+    @* @foreach (var item in @ViewBag.results) *@
+    @* { *@
+    @*     <tr> *@
+    @*         <td>@item.Name</td> *@
+    @*         <td>@item.PP</td> *@
+    @*         <td>@item.Id</td> *@
+    @*     </tr> *@
+    @* } *@
+}
+
+<header class="top_header" id="header">
+</header>
+<div class="lb-mode-select">
+    <a href="/leaderboards?mode=0"><button class="standard-button" id="button-mode-0">std</button></a>
+    <a href="/leaderboards?mode=1"><button class="standard-button" id="button-mode-1">taiko</button></a>
+    <a href="/leaderboards?mode=2"><button class="standard-button" id="button-mode-2">ctb</button></a>
+    <a href="/leaderboards?mode=3"><button class="standard-button" id="button-mode-3">mania</button></a>
+    <a href="/leaderboards?mode=4"><button class="standard-button" id="button-mode-4">rx!std</button></a>
+    <a href="/leaderboards?mode=5"><button class="standard-button" id="button-mode-5">rx!taiko</button></a>
+    <a href="/leaderboards?mode=6"><button class="standard-button" id="button-mode-6">rx!tcb</button></a>
+    <a href="/leaderboards?mode=8"><button class="standard-button" id="button-mode-8">ez</button></a>
+</div>
+
+<section id="lb-profile">
+    @{
+        if (players.Count < 1)
+        {
+            <div class="player-head">
+                <div class="basic">
+                    <img src="/getavatar/0" alt="1">
+                    <div class="player-basic-info">
+                        <div class="titles">
+                            @* <h1 id="username">@playerInfo.player.info.name</h1> *@
+                            <h1 id="username">Brak Gracza :(</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            string mode = "";
+            if ((ViewBag.mode >= 1 && ViewBag.mode <= 6) || ViewBag.mode == 8) mode = "?mode=" + ViewBag.mode;
+            
+             <a href="/u/@(players[0].Id + mode)">
+                <div class="player-head">
+                    <div class="basic">
+                        <img src="/getavatar/@players[0].Id" alt="1">
+                        <div class="player-basic-info">
+                            <div class="titles">
+                                @{
+                                    string flagUrl = "https://osu.ppy.sh/images/flags/" + Strings.ToUpperCase(players[0].Country) + ".png";
+                                }
+                                <img class="flag" src="@flagUrl">
+                                <h1 id="username">@players[0].Name</h1>
+                                @{
+                                    var currentTime = DateTime.UtcNow;
+                                    if (players[0].DonorEnd > ((DateTimeOffset)currentTime).ToUnixTimeSeconds())
+                                    {
+                                        <div class="supporter">❤</div>
+                                    }
+                                }
+                                @{
+                                    if (!String.IsNullOrEmpty(ViewBag.priv.ToString()))
+                                    {
+                                        <div class="badge">@ViewBag.priv</div>
+                                    }
+                                }
+                            </div>
+
+                            <span class="group" style="color: #fff">@(players[0].Pp)pp</span>
+                            <div><span class="group subtext" style="color: #ccc">@Math.Round(players[0].Acc, 2)%</span><small class="subtext small">Accuracy</small></div>
+                            <div><span class="group subtext" style="color: #ccc">@players[0].PlayCount</span><small class="subtext small">Play Count</small></div>
+                        </div>
+                    </div>
+                    <div class="ranking">
+                        <h5>Mode Ranking</h5>
+                        <div class="global-ranks lb-global-ranks">
+                            <div class="ranks">
+                                <h1>#1</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+    }
+</section>
+@{
+    if (players.Count > 1)
+    {
+        <section class="leaderboard">
+            <div class="player-frame">
+                <span class="userinfo">User Info</span>
+                <span class="acc">Accuracy</span>
+                <span class="playcount">Play Count</span>
+                <span class="pp">PP</span>
+            </div>
+            @{
+                for (int i = 1; i < players.Count; i++)
+                {
+                    string mode = "";
+                    if ((ViewBag.mode >= 1 && ViewBag.mode <= 6) || ViewBag.mode == 8) mode = "?mode=" + ViewBag.mode;
+                    string flagUrl = "https://osu.ppy.sh/images/flags/" + Strings.ToUpperCase(players[i].Country) + ".png";
+                    <a href="/u/@(players[i].Id + mode)">
+                        <div class="background"  style="--bg:url('/getavatar/@(players[i].Id)b');"></div>
+                        <div class="player-frame">
+                            <span class="ranking">#@(i+1)</span>
+                            <img src="/getavatar/@players[i].Id" alt="avatar" class="avatar">
+                            <img class="flag" src="@flagUrl">
+                            <span class="username">@players[i].Name</span>
+                            <span class="acc">@Math.Round(players[i].Acc, 2)%</span>
+                            <span class="playcount">@players[i].PlayCount</span>
+                            @{ var ppstring = players[i].Pp + "pp";}
+                            <span class="pp">@ppstring</span>
+                        </div>
+                    </a>
+                }
+            }
+        </section>
+    }
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.fog.min.js"></script>
+<script>
+    VANTA.FOG({
+    el: "header",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.00,
+    minWidth: 200.00,
+    blurFactor: 0.52,
+    speed: 0.60,
+    zoom: 0.70,
+    highlightColor: 0x26aaff,
+    midtoneColor: 0xff3535,
+    lowlightColor: 0x445aff,
+    baseColor: 0xfcc2c2
+    })
+</script>
+<script>
+    document.querySelector('#button-mode-@ViewBag.mode').classList.add('active-button');
+    document.getElementById('nav-rankings').classList.add('active');
+</script>

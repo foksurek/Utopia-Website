@@ -1,0 +1,271 @@
+﻿@using Newtonsoft.Json.Linq
+@using Newtonsoft.Json
+@using Utopia.Models.ApiModels
+@using System.Globalization
+@{
+    GetPlayerStatus playerStatus = JsonConvert.DeserializeObject<GetPlayerStatus>(ViewBag.playerStatus);
+    GetPlayerInfo playerInfo = JsonConvert.DeserializeObject<GetPlayerInfo>(ViewBag.json);
+    GetTopScores topScores = JsonConvert.DeserializeObject<GetTopScores>(ViewBag.topplays);
+    JObject data = JsonConvert.DeserializeObject(ViewBag.json);
+    
+    
+    var configuration = (IConfiguration)Context.RequestServices.GetService(typeof(IConfiguration))!;
+    var urls = configuration!.GetSection("Urls").Get<Urls>();
+    var id = playerInfo.player.info.id;
+    var avatar = "/getAvatar/" + id;
+    var cover = "/getAvatar/" + id + "b";
+
+    ViewData["Title"] = "Player data dla " + playerInfo.player.info.name;
+
+    string mode = ViewBag.mode.ToString();
+    
+    
+
+}
+<div class="topbg" style="background-image: url(@cover);">
+</div>
+<section id="player-profile">
+    <div class="player-head">
+        <div class="basic">
+            <img src="@avatar" alt="1">
+            <div class="player-basic-info">
+                <div class="titles">
+                    @{
+                        string flagUrl = "https://osu.ppy.sh/images/flags/" + playerInfo.player.info.country.ToUpper() + ".png";
+                    }
+                    <img class="flag" src="@flagUrl">
+                    <h1 id="username">@playerInfo.player.info.name</h1>
+                    @{
+                        var currentTime = DateTime.UtcNow;
+                        if (playerInfo.player.info.donor_end > ((DateTimeOffset)currentTime).ToUnixTimeSeconds())
+                        {
+                            <div class="supporter">❤</div>
+                        }
+                    }
+                    @{
+                        if (!String.IsNullOrEmpty(ViewBag.priv.ToString()))
+                        {
+                            <div class="badge">@ViewBag.priv</div>
+                        }
+                    }
+                </div>
+                
+                <span class="group" style="color: #a2db68">TODO</span>
+                
+                @{
+                    string isOnline = @playerStatus.PlayerStatus.Online ? "online" : "offline";
+                }
+                
+                <div class="status @isOnline">
+                    <span class="dot"></span><span id="if-online">Currently @isOnline</span><!--<p>last seen: <span id="time-ago">5 minutes</span> ago.</p>-->
+                </div>
+                <div class="playing">
+                    @{
+                        if (playerStatus.PlayerStatus.Online)
+                        {
+                            switch (playerStatus.PlayerStatus.Status.Action)
+                            {
+                                case 0:
+                                    <span>Idle</span>
+                                    break;
+                                case 1:
+                                    <span>AFK</span>
+                                    break;
+                                case 2:
+                                    if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                    {
+                                        <span>Now playing: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Now playing: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+
+                                    }
+                                    break;
+                                case 3:
+                                    if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                    {
+                                        <span>Editing: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Editing: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+    
+                                    }
+                                    break;
+                                case 4:
+                                    if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                    {
+                                        <span>Modding: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Modding: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+    
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="ranking">
+            <h5>Global ranks:</h5>
+            <div class="global-ranks">
+                <div class="ranks">
+                    <h6>Standard</h6>
+                    <h1>#@data["player"]["stats"]["0"]["rank"]</h1>
+                </div>
+                <div class="ranks">
+                    <h6>Relax</h6>
+                    <h1>#@data["player"]["stats"]["4"]["rank"]</h1>
+                </div>
+            </div>
+            <h5 style="opacity: .6;">Country ranks:</h5>
+            <div class="global-ranks" style="font-size: 0.75rem; opacity: 0.6;">
+                <div class="ranks">
+                    <h6>Standard</h6>
+                    <h1>#@data["player"]["stats"]["4"]["country_rank"]</h1>
+                </div>
+                <div class="ranks">
+                    <h6>Relax</h6>
+                    <h1>#@data["player"]["stats"]["4"]["country_rank"]</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="player-desc">
+        <div class="content-line">
+            <span class="playstyle">Plays with: <span id="playstyle">Keyboard, mouse</span></span>
+            @{
+                DateTime localDateTime = DateTimeOffset.FromUnixTimeSeconds((long)data["player"]["info"]["creation_time"]).ToLocalTime().DateTime;
+            }
+            <span class="registered">Registered: <span id="registered">@localDateTime.ToString("dddd, MMMM d, yyyy", new CultureInfo("en-US"))</span></span>
+        </div>
+        <!-- <div class="content-line">
+            <span class="location">Location: <span id="location">Africa</span></span>
+            <span class="discord">Discord: <a href="#" id="discord">discord</a></span>
+            <span class="twitter">Twitter: <a href="#" id="twitter">barcode scanner</a></span>
+            <span class="heart">❤: <span id="heart">my right hand</span></span>
+        </div> -->
+    </div>
+    <!-- <div class="player-about">
+    </div> -->
+</section>
+<section class="stats">
+    <div class="row">
+        <h1 class="fancyh1">Stats</h1>
+        <div class="mode-select">
+            <div style="margin-left: auto; margin-right: auto">
+                <a href="/u/@data["player"]["info"]["id"]?mode=0"><button class="standard-button" id="button-mode-0">std</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=1"><button class="standard-button" id="button-mode-1">taiko</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=2"><button class="standard-button" id="button-mode-2">catch</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=3"><button class="standard-button" id="button-mode-3">mania</button></a>
+            </div>
+            <div style="top: 5px; position: relative">
+                <a href="/u/@data["player"]["info"]["id"]?mode=4"><button class="standard-button" id="button-mode-4">rx!std</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=5"><button class="standard-button" id="button-mode-5">rx!taiko</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=6"><button class="standard-button" id="button-mode-6">rx!catch</button></a>
+                <a href="/u/@data["player"]["info"]["id"]?mode=8"><button class="standard-button" id="button-mode-8">ez</button></a>
+            </div>
+        </div>
+    </div>
+    <div class="stats-content">
+        <div class="mode-stats">
+            <div class="col-ranks">
+                <div class="rank A">A</div>
+                <div class="rank S">S</div>
+                <div class="rank Sx">S</div>
+                <div class="rank SS">SS</div>
+                <div class="rank SSx">SS</div>
+            </div>
+        </div>
+        <div class="profile-stats">
+            <div class="names">
+                <span class="tscore"><b>total score:</b></span>
+                <span class="rscore"><b>ranked score:</b></span>
+                <span class="profile_pp"><b>pp:</b></span>
+                <span class="playcounnt"><b>playcount:</b></span>
+                <span class="playtime"><b>playtime:</b></span>
+                <span class="profile_acc"><b>acc:</b></span>
+                <span class="profile_maxcombo"><b>max combo:</b></span>
+                <span class="thits"><b>total hits:</b></span>
+                <span class="rwatched"><b>replays watched:</b></span>
+            </div>
+            <div class="values">
+                <span class="tscore">@data["player"]["stats"][mode]["tscore"]</span>
+                <span class="rscore">@data["player"]["stats"][mode]["rscore"]</span>
+                <span class="profile_pp">@data["player"]["stats"][mode]["pp"]pp</span>
+                <span class="playcounnt">@data["player"]["stats"][mode]["plays"]</span>
+                <span class="playtime">@data["player"]["stats"][mode]["playtime"]</span>
+                <span class="profile_acc">@String.Format("{0:0.00}", @Math.Round((decimal)data["player"]["stats"][mode]["acc"], 2))%</span>
+                <span class="profile_maxcombo">@data["player"]["stats"][mode]["max_combo"]</span>
+                <span class="thits">@data["player"]["stats"][mode]["total_hits"]</span>
+                <span class="rwatched">@data["player"]["stats"][mode]["replay_views"]</span>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="topplays">
+    <div class="row">
+        <h1 class="fancyh1">Top Plays</h1>
+    </div>
+    <div class="plays">
+        
+        @{
+            var prefix = "x";
+            var mods = "";
+            var maps = topScores.scores.Length >= 10 ? 10 : topScores.scores.Length;
+            for (var i = 0; i < maps; i++)
+            {
+                var modCombination = Mods.NM;
+
+                for (var j = 0; j < 31; j++)
+                {
+                    var bit = 1 << j;
+                    if ((topScores.scores[i].mods & bit) != 0)
+                    {
+                        modCombination |= (Mods)bit;
+                        mods = modCombination.ToString().Replace(", ", "");
+                    }   
+                }
+                if (mods.Contains("NC"))
+                {
+                    mods = mods.Replace("DT", "");
+                }
+
+                if (mods.Contains("ScoreV2"))
+                {
+                    mods = mods.Replace("ScoreV2", "V2");
+                }
+                <a href="/beatmaps/@topScores.scores[i].beatmap.Id">
+                    <div class="play">
+                        <div class="background"  style="--bg:url('https://assets.ppy.sh/beatmaps/@topScores.scores[i].beatmap.SetId/covers/raw.jpg');"></div>
+                        <div class="map-content">
+                            <div class="grade">
+                                <div class='rank @topScores.scores[i].grade'>@topScores.scores[i].grade</div>
+                            </div>
+                            <span class="title">@topScores.scores[i].beatmap.Artist - @topScores.scores[i].beatmap.Title [@topScores.scores[i].beatmap.Version]</span>
+                            <span class="subtitle">played at @topScores.scores[i].play_time</span>   
+                            <span class="mods">@mods</span>
+                            <span class="combo">@prefix@topScores.scores[i].max_combo/@topScores.scores[i].beatmap.MaxCombo</span>
+                            <span class="acc">@Math.Round((decimal)@topScores.scores[i].acc, 2)%</span>
+                            <span class="pp">@Math.Round((decimal)topScores.scores[i].pp)pp</span>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+
+    </div>
+    <div class="top-button" id="show-more-topplays">Show more</div>
+    <div class="top-button" style="display: none" id="show-hide-topplays">Hide</div>
+    @* <div style="display: none; margin-top: 10px; text-align: center; color: white" id="loading">Loading</div> *@
+    <div class="loading"><div></div><div></div><div></div><div></div></div>
+</section>
+<script>
+    const apiUrl = 'https://api.borsuq.xyz/v1/get_player_scores?scope=best&id=@data["player"]["info"]["id"]&mode=@ViewBag.mode&limit=100';
+    document.querySelector('#button-mode-@ViewBag.mode').classList.add('active');
+</script>
+<script src="~/js/moreBeatmaps.js"></script>

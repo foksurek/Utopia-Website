@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["title"] = "Beatmapy";
+    var configuration = (IConfiguration)Context.RequestServices.GetService(typeof(IConfiguration))!;
+    var urls = configuration!.GetSection("Urls").Get<Urls>();
+}
+
+<header class="top_header" id="top_header">
+</header>
+<section id="beatmap-list">
+    <div class="content">
+        <input type="text" name="searchMap" id="searchMap" placeholder="Id, Set Id, Wykonawca, Tytuł">
+        <div class="SelectStatusPanel">
+            <a id="ranked" class="staus-select active" data-option="1">RANKED</a>
+            <a id="loved" class="staus-select" data-option="4">LOVED</a>
+            <a id="qualified" class="staus-select" data-option="3">QUALIFIED</a>
+            <a id="approved" class="staus-select" data-option="2">APPROVED</a>
+            <a id="graveyard" class="staus-select" data-option="-2">GRAVEYARD</a>
+            <a id="pending" class="staus-select" data-option="0">PENDING</a>
+            <a id="wip" class="staus-select" data-option="-1">WIP</a>
+        </div>
+
+        <div class="map-search-results">
+            
+        </div>
+    </div>
+    <div class="loading" style="display: block"><div></div><div></div><div></div><div></div></div>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.fog.min.js"></script>
+<script>
+    VANTA.FOG({
+    el: "header",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.00,
+    minWidth: 200.00,
+    blurFactor: 0.52,
+    speed: 0.60,
+    zoom: 0.70,
+    highlightColor: 0x26aaff,
+    midtoneColor: 0xff3535,
+    lowlightColor: 0x445aff,
+    baseColor: 0xfcc2c2
+    })
+</script>
+<script>
+var url = '@urls.Assets';
+document.getElementById('nav-beatmaps').classList.add('active');
+</script>
+<script src="~/js/searchMap.js"></script>

@@ -1,0 +1,171 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using Utopia.Models.ApiModels
+@model ChangeNameModel
+@{
+    
+    GetPlayerStatus playerStatus = JsonConvert.DeserializeObject<GetPlayerStatus>(ViewBag.playerStatus);
+    GetPlayerInfo playerInfo = JsonConvert.DeserializeObject<GetPlayerInfo>(ViewBag.json);
+    
+    string id = Context.Session.GetString("UserId")!;
+    string username = Context.Session.GetString("UserName")!;
+    var configuration = (IConfiguration)Context.RequestServices.GetService(typeof(IConfiguration))!;
+    var urls = configuration!.GetSection("Urls").Get<Urls>();
+    JObject data = JObject.Parse(ViewBag.json);
+    
+    string cover = "/getAvatar/" + id + "b" + "?random=" + new Random().Next(0, 1000000);
+    string avatar = "/getAvatar/" + id + "?random=" + new Random().Next(0, 1000000);
+
+    ViewData["Title"] = @"Settings [" + username + "]";
+}
+<div class="topbg" style="--tbg: url(@cover);">
+</div>
+<section class="settings">
+    <div class="player-head">
+        <div class="basic">
+                    <img src="@avatar" alt="1">
+                    <div class="player-basic-info">
+                        <div class="titles">
+                            @{
+                                string flagUrl = "https://osu.ppy.sh/images/flags/" + playerInfo.player.info.country.ToUpper() + ".png";
+                            }
+                            <img class="flag" src="@flagUrl">
+                            <h1 id="username">@playerInfo.player.info.name</h1>
+                            @{
+                                var currentTime = DateTime.UtcNow;
+                                if (playerInfo.player.info.donor_end > ((DateTimeOffset)currentTime).ToUnixTimeSeconds())
+                                {
+                                    <div class="supporter">❤</div>
+                                }
+                            }
+                            @{
+                                if (!String.IsNullOrEmpty(ViewBag.priv.ToString()))
+                                {
+                                    <div class="badge">@ViewBag.priv</div>
+                                }
+                            }
+                        </div>
+                        
+                        <span class="group" style="color: #a2db68">TODO</span>
+                        
+                        @{
+                            string isOnline = @playerStatus.PlayerStatus.Online ? "online" : "offline";
+                        }
+                        
+                        <div class="status @isOnline">
+                            <span class="dot"></span><span id="if-online">Currently @isOnline</span><!--<p>last seen: <span id="time-ago">5 minutes</span> ago.</p>-->
+                        </div>
+                        <div class="playing">
+                            @{
+                                if (playerStatus.PlayerStatus.Online)
+                                {
+                                    switch (playerStatus.PlayerStatus.Status.Action)
+                                    {
+                                        case 0:
+                                            <span>Idle</span>
+                                            break;
+                                        case 1:
+                                            <span>AFK</span>
+                                            break;
+                                        case 2:
+                                            if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                            {
+                                                <span>Now playing: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Now playing: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+        
+                                            }
+                                            break;
+                                        case 3:
+                                            if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                            {
+                                                <span>Editing: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Editing: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+            
+                                            }
+                                            break;
+                                        case 4:
+                                            if ((playerStatus.PlayerStatus.Status.Beatmap) == null)
+                                            {
+                                                <span>Modding: <a id="beatmap" href="">@playerStatus.PlayerStatus.Status.InfoText</a> [not submited]</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Modding: <a id="beatmap" href="/beatmaps/@playerStatus.PlayerStatus.Status.Beatmap.Id">@playerStatus.PlayerStatus.Status.InfoText</a></span>
+            
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+    </div>
+</section>
+<section class="settings-tab">
+    <h1 class="fancyh1">Profile</h1>
+    <div class="profile-settings">
+        <form asp-action="ChangeName" asp-controller="Account">
+            <div class="line">
+                <span>username</span>
+                <input asp-for="Name" type="text" placeholder="@username" required>
+            </div>
+            <span asp-validation-for="Name" class="error-span"></span>
+            <input type="submit" value="Submit" class="btn">
+        </form>
+        
+    </div>
+    <hr>
+    <h1 class="fancyh1">Avatar</h1>
+    <div class="avatar-settings">
+        <div>
+            <div class="avatar-panel">
+                <span>Avatar</span>
+                <img id="avatar-settings-img" src="@avatar" alt="avatar">
+                <input type="file" id="imageFile" style="display: none;"/>
+                <button onclick="selectImage()">Upload</button>
+            </div>
+            <div class="banner-panel">
+                <span>Banner</span>
+                <div id="banner-settings-img" style="--bg:url(@cover)"></div>
+                <button onclick="selectBanner()">Upload</button>
+            </div>
+        </div>
+        <span class="file-upload-error" style="color: lightcoral; display: none">Incorrect file format or file is larger than 5MB</span>
+    </div>
+    <hr>
+    <h1 class="fancyh1">Password</h1>
+    <div class="password-settings">
+        <form asp-action="" asp-controller="Account">
+            <div class="line">
+                <span>current password</span>
+                <input type="text" name="current-password" id="current-password-input" required>
+            </div>
+            <div class="line">
+                <span>new password</span>
+                <input type="text" name="password-input" id="password-input" required>
+            </div>
+            <div class="line">
+                <span>confirm new password</span>
+                <input type="text" name="confirm-password" id="confirm-password-input" required>
+            </div>
+            <input type="submit" value="Submit" class="btn">
+        </form>
+        
+    </div>
+    <hr>
+    <h1 class="fancyh1">Other</h1>
+    <div class="other-settings">
+        <form asp-action="" asp-controller="Account">
+            <input type="submit" value="Submit" class="btn">
+        </form>
+    </div>
+</section>
+<script src="~/js/avatarUpload.js"></script>
