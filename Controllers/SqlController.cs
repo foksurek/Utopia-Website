@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Utopia.Interfaces;
 using Utopia.Models;
-using Utopia.Models.SqlModels;
+using Utopia.Dto;
 
 namespace Utopia.Controllers;
 

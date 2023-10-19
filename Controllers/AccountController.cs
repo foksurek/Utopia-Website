@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Utopia.ActionFilters;
 using Utopia.Contexts;
 using Utopia.Interfaces;
-using Utopia.Models.ApiModels;
+using Utopia.Api;
 using Utopia.Packages;
 using Utopia.ViewModels;
 

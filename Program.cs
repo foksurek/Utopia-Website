@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using Utopia.Contexts;
 using Utopia.Interfaces;
 using Utopia.Models;
@@ -10,6 +11,59 @@ internal abstract class Program
 {
     private static void Main(string[] args)
     {
+        Console.Write("Starting ");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Utopia...");
+        Console.WriteLine();
+        string connectionString = ""; 
+        //Check required env variables
+        dotenv.net.DotEnv.Load();
+        var requiredEnvVariables = new List<string>
+        {
+            "DB_HOST",
+            "DB_PORT",
+            "DB_NAME",
+            "DB_USER",
+            "DB_PASS"
+        };
+        var missing = false;
+        foreach (var requiredEnvVariable in requiredEnvVariables)
+        {
+            if (Environment.GetEnvironmentVariable(requiredEnvVariable) != null) continue;
+            ShowError($"Missing required environment variable: {requiredEnvVariable}");
+            missing = true;
+        }
+
+        if (missing) return;
+        
+        // Build connection string
+        var dbConnectionModel = new DbConnectionModel
+        {
+            Host = Environment.GetEnvironmentVariable("DB_HOST")!,
+            Port = Environment.GetEnvironmentVariable("DB_PORT")!,
+            Database = Environment.GetEnvironmentVariable("DB_NAME")!,
+            Username = Environment.GetEnvironmentVariable("DB_USER")!,
+            Password = Environment.GetEnvironmentVariable("DB_PASS")!
+        };
+        
+        connectionString = $"server={dbConnectionModel.Host};port={dbConnectionModel.Port};database={dbConnectionModel.Database};user={dbConnectionModel.Username};password={dbConnectionModel.Password}";
+        
+        // Check connection
+        
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            ShowError("Cannot connect to database. Check .env file.");
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.White;
+        // App Run        
         var builder = WebApplication.CreateBuilder(args);
             
         builder.Services.AddControllersWithViews();
@@ -27,8 +81,6 @@ internal abstract class Program
         builder.Services.Configure<Urls>(builder.Configuration.GetSection("Urls"));
 
         builder.Services.AddHttpClient<IRequests, Requests>();
-    
-        var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
         
         builder.Services.AddDbContext<AppDbContext>(options => options.UseMySQL(connectionString!));
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -62,5 +114,14 @@ internal abstract class Program
         
         app.Run();
     }     
+    
+    private static void ShowError(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("----------------------------------------");
+        Console.WriteLine(message);
+        Console.WriteLine("----------------------------------------");
+        Console.ForegroundColor = ConsoleColor.White;
+    }
 }
 

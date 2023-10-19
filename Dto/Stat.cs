@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Utopia.Models.SqlModels;
+namespace Utopia.Dto;
 
 [Table("stats")]
 public class Stat

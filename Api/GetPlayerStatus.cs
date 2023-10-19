@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Utopia.Models.ApiModels;
+namespace Utopia.Api;
 
 public class GetPlayerStatus
 {
