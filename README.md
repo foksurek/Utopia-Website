@@ -1,6 +1,3 @@
-# [Dropped]
-
-
 # Utopia-Website
 
 Utopia osu! server offical website
