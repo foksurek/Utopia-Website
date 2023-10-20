@@ -10,6 +10,8 @@ appsettings.json
 appsettings.Development.json
 ./appsettings.json
 ./appsettings.Development.json
+.env
+*.env
 *.exe
 *.dll
 *.pdb

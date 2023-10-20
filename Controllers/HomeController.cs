@@ -7,10 +7,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Utilities;
 using Utopia.Contexts;
+using Utopia.Dto;
 using Utopia.Interfaces;
 using Utopia.Models;
-using Utopia.Models.ApiModels;
-using Utopia.Models.SqlModels;
+using Utopia.Api;
+using Utopia.Dto;
 using Utopia.Packages;
 using Utopia.ViewModels;
 

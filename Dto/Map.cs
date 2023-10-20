@@ -1,4 +1,4 @@
-﻿namespace Utopia.Models.SqlModels;
+﻿namespace Utopia.Dto;
 
 public class Map
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Utopia.Models.SqlModels;
+using Utopia.Dto;
+using Utopia.Dto;
 
 namespace Utopia.Contexts;
 

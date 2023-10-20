@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Utopia.Models.SqlModels;
+namespace Utopia.Dto;
 
 [Table("users")]
 public class SqlUser
