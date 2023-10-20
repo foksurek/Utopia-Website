@@ -12,9 +12,6 @@ remeber to add appsettings.json to your project
       "Microsoft.AspNetCore": "Warning"
     }
   },
-    "ConnectionStrings": {
-      "MySqlConnection": "server=;user=;password=;database="
-    },
   "urls" : {
     "Base": "app url e.g. https://doamin.xyz/",
     "Assets": "assets url e.g. https://doamin.xyz/assets or https://assets.doamin.xyz/"
@@ -37,6 +34,8 @@ remeber to add appsettings.json to your project
   "AllowedHosts": "*"
 }
 ```
+
+use `.env` for MySQL connection
 
 You have to create databse, we're using [THIS](https://github.com/osuAkatsuki/bancho.py/) as a osu! server
 Thanks [cmyui](https://github.com/cmyui) and [Bancho.py](https://github.com/osuAkatsuki/bancho.py/) for making the open source osu server
