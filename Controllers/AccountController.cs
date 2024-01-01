@@ -120,14 +120,14 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        if (!CheckPassword(password, storedPassword)) return RedirectToAction("Index", "Home");
+        if (!CheckPasswordFromOsu(password, storedPassword)) return RedirectToAction("Index", "Home");
         HttpContext.Session.SetString("UserId", results.FirstOrDefault()?.Id.ToString()!);
         HttpContext.Session.SetString("UserName", results.FirstOrDefault()?.Name!);
             
         return RedirectToAction("Index", "Home");
     }
 
-    private static bool CheckPassword(string password, string hashedPassword)
+    private static bool CheckPasswordFromOsu(string password, string hashedPassword)
     {
         var passwordBytes = Encoding.UTF8.GetBytes(password);
         var passwordMd5Bytes = MD5.Create().ComputeHash(passwordBytes);

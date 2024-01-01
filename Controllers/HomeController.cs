@@ -57,6 +57,12 @@ public class HomeController : Controller
     {
         return Redirect("https://osu.ppy.sh/beatmaps/" + id);
     }
+    
+    [Route("beatmapsets/{id}")]
+    public RedirectResult Beatmapsets(int id)
+    {
+        return Redirect("https://osu.ppy.sh/beatmapsets/" + id);
+    }
 
     public ActionResult Maps()
     {

@@ -1,3 +1,4 @@
+using dotenv.net;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using Utopia.Contexts;
@@ -17,7 +18,7 @@ internal abstract class Program
         Console.WriteLine();
         string connectionString = ""; 
         //Check required env variables
-        dotenv.net.DotEnv.Load();
+        dotenv.net.DotEnv.Load(); // for non docker deployment
         var requiredEnvVariables = new List<string>
         {
             "DB_HOST",
@@ -55,6 +56,7 @@ internal abstract class Program
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
             connection.Close();
+            ShowInfo("Successfully connected to database.");
         }
         catch (Exception e)
         {
@@ -118,6 +120,23 @@ internal abstract class Program
     private static void ShowError(string message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("----------------------------------------");
+        Console.WriteLine(message);
+        Console.WriteLine("----------------------------------------");
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+    private static void ShowInfo(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("----------------------------------------");
+        Console.WriteLine(message);
+        Console.WriteLine("----------------------------------------");
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+    
+    private static void Debug(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("----------------------------------------");
         Console.WriteLine(message);
         Console.WriteLine("----------------------------------------");
