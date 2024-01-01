@@ -22,8 +22,6 @@ public class FileController : Controller
         var supportedExtensions = new List<string> { ".png", ".jpg", ".jpeg", ".gif" };
         var filePath = $"{_filePaths.Avatars}{id}";
 
-        Console.WriteLine(filePath);
-
         foreach (var extension in supportedExtensions)
         {
             var fullPath = $"{filePath}{extension}";

@@ -5,7 +5,7 @@
     var urls = configuration!.GetSection("Urls").Get<Urls>();
 }
 @{
-    ViewData["title"] = "test";
+    ViewData["title"] = "Utopia";
 
     JObject jObject = JObject.Parse(ViewBag.best);
     JArray array = JArray.Parse(jObject["leaderboard"]?.ToString()!);
